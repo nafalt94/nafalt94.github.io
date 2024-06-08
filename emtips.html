@@ -12,12 +12,12 @@
 <body class="is-preload">
     <div id="wrapper">
         <header id="header">
-            <a href="index.html" class="logo">EM Tipskupong Ställning</a>
-            <div id="last-update-time"></div> <!-- Add this line -->
+            <a href="emtips.html" class="logo">EM Tipskupong Ställning</a>
+            <div id="last-update-time"></div>
         </header>
         <nav id="nav">
             <ul class="links">
-                <li class="active"><a href="index.html">Back to Overview</a></li>
+                <li class="active"><a href="emtips.html">Back to Overview</a></li>
             </ul>
             <ul class="icons">
                 <li><a href="https://www.linkedin.com/in/gustav-nåfält-32716b135" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
@@ -36,6 +36,7 @@
                     <table id="leaderboard-table">
                         <thead>
                             <tr>
+                                <th>Rank</th>
                                 <th>Player</th>
                                 <th>Total Points</th>
                             </tr>
@@ -112,9 +113,12 @@
                 });
                 // Sort leaderboard in descending order
                 leaderboardData.sort((a, b) => b.points - a.points);
+                leaderboardData.forEach((player, index) => {
+                    player.rank = index + 1;
+                });
                 leaderboardData.forEach(player => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${player.name}</td><td>${player.points}</td>`;
+                    tr.innerHTML = `<td>${player.rank}</td><td>${player.name}</td><td>${player.points}</td>`;
                     leaderboardBody.appendChild(tr);
                 });
 
@@ -136,6 +140,6 @@
             })
             .catch(error => console.error('Error fetching or processing Excel file:', error));
     });
-</script>
+    </script>
 </body>
 </html>
