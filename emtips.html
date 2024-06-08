@@ -1,161 +1,131 @@
 <!DOCTYPE HTML>
-<!--
-    Massively by HTML5 UP
-    html5up.net | @ajlkn
-    Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
 <html>
-    <head>
-        <title>EM Tipskupong Ställning</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-        <link rel="stylesheet" href="assets/css/main.css" />
-        <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    </head>
-    <body class="is-preload">
-
-        <!-- Wrapper -->
-        <div id="wrapper">
-
-            <!-- Header -->
-            <header id="header">
-                <a href="index.html" class="logo">EM Tipskupong Ställning</a>
-            </header>
-
-            <!-- Nav -->
-            <nav id="nav">
-                <ul class="links">
-                    <li class="active"><a href="index.html">Back to Overview</a></li>
-                </ul>
-                <ul class="icons">
-                    <li><a href="https://www.linkedin.com/in/gustav-nåfält-32716b135" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
-                    <li><a href="https://github.com/nafalt94" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
-                </ul>
-            </nav>
-
-            <!-- Main -->
-            <div id="main">
-                <!-- Post -->
-                <section class="post">
-                    <header class="major">
-                        <span class="date">June, 2024</span>
-                        <h1>EM Tipskupong<br/>Ställning</h1>
-                        <p>Följ ställningen live för EM-tipsen.</p>
-                    </header>
-                    <div class="table-wrapper">
-                        <h2>Leaderboard</h2>
-                        <table id="leaderboard-table">
-                            <thead>
-                                <tr id="leaderboard-headers">
-                                    <!-- Player names will be inserted here -->
-                                    <th>Player</th>
-                                    <th>Total Points</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leaderboard-body">
-                                <!-- Player data will be inserted here -->
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="table-wrapper">
-                        <h2>Game Results</h2>
-                        <table id="game-results-table">
-                            <thead>
-                                <tr id="game-results-headers">
-                                    <!-- Game headers will be inserted here -->
-                                    <th>Game</th>
-                                    <th>Result</th>
-                                </tr>
-                            </thead>
-                            <tbody id="game-results-body">
-                                <!-- Game results will be inserted here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            </div>
-
-            <!-- Footer -->
-            <footer id="footer">
-                <section class="split contact">
-                    <section class="alt">
-                        <h3>Address</h3>
-                        <p>Tvedöravägen 4<br />
-                            Torna Hällestad, Lund 24745 </p>
-                    </section>
-                    <section>
-                        <h3>Phone</h3>
-                        <p><a href="#">(+46) 704936440</a></p>
-                    </section>
-                    <section>
-                        <h3>Email</h3>
-                        <p><a href="#">nafalt94@gmail.com</a></p>
-                    </section>
-                    <section>
-                        <h3>Social</h3>
-                        <ul class="icons alt">
-                            <li><a href="https://www.linkedin.com/in/gustav-nåfält-32716b135" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
-                            <li><a href="https://github.com/nafalt94" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
-                        </ul>
-                    </section>
-                </section>
-            </footer>
-
-            <!-- Copyright -->
-            <div id="copyright">
-                <ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
-            </div>
-
+<head>
+    <title>EM Tipskupong Ställning</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="is-preload">
+    <div id="wrapper">
+        <header id="header">
+            <a href="index.html" class="logo">EM Tipskupong Ställning</a>
+        </header>
+        <nav id="nav">
+            <ul class="links">
+                <li class="active"><a href="index.html">Back to Overview</a></li>
+            </ul>
+            <ul class="icons">
+                <li><a href="https://www.linkedin.com/in/gustav-nåfält-32716b135" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+                <li><a href="https://github.com/nafalt94" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+            </ul>
+        </nav>
+        <div id="main">
+            <section class="post">
+                <header class="major">
+                    <span class="date">June, 2024</span>
+                    <h1>EM Tipskupong<br/>Ställning</h1>
+                    <p>Följ ställningen live för EM-tipsen.</p>
+                </header>
+                <div class="table-wrapper">
+                    <h2>Leaderboard</h2>
+                    <table id="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Total Points</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            <!-- Player data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-wrapper">
+                    <h2>Game Results</h2>
+                    <table id="game-results-table">
+                        <thead>
+                            <tr>
+                                <th>Game</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="game-results-body">
+                            <!-- Game results will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
+        <footer id="footer">
+            <section class="split contact">
+                <section class="alt">
+                    <h3>Address</h3>
+                    <p>Tvedöravägen 4<br />
+                        Torna Hällestad, Lund 24745 </p>
+                </section>
+                <section>
+                    <h3>Phone</h3>
+                    <p><a href="#">(+46) 704936440</a></p>
+                </section>
+                <section>
+                    <h3>Email</h3>
+                    <p><a href="#">nafalt94@gmail.com</a></p>
+                </section>
+                <section>
+                    <h3>Social</h3>
+                    <ul class="icons alt">
+                        <li><a href="https://www.linkedin.com/in/gustav-nåfält-32716b135" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+                        <li><a href="https://github.com/nafalt94" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+                    </ul>
+                </section>
+            </section>
+        </footer>
+    </div>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/jquery.scrolly.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('data.xlsx')
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: 'array' });
 
-        <!-- Scripts -->
-        <script src="assets/js/jquery.min.js"></script>
-        <script src="assets/js/jquery.scrollex.min.js"></script>
-        <script src="assets/js/jquery.scrolly.min.js"></script>
-        <script src="assets/js/browser.min.js"></script>
-        <script src="assets/js/breakpoints.min.js"></script>
-        <script src="assets/js/util.js"></script>
-        <script src="assets/js/main.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                fetch('data.xlsx')
-                    .then(response => response.arrayBuffer())
-                    .then(data => {
-                        const workbook = XLSX.read(data, { type: 'array' });
+                    // Display leaderboard
+                    const leaderboardSheet = workbook.Sheets["Poäng_matcher"];
+                    const playerNames = XLSX.utils.sheet_to_json(leaderboardSheet, { header: 1 })[0].slice(2);
+                    const totalPoints = XLSX.utils.sheet_to_json(leaderboardSheet, { range: 62, header: 1 })[0].slice(2);
+                    const leaderboardBody = document.getElementById("leaderboard-body");
+                    playerNames.forEach((name, index) => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td>${name}</td><td>${totalPoints[index]}</td>`;
+                        leaderboardBody.appendChild(tr);
+                    });
 
-                        // Display leaderboard
-                        displayLeaderboard(workbook.Sheets["Poäng_matcher"]);
-
-                        // Display game results
-                        displayGameResults(workbook.Sheets["Resultat"]);
-                    })
-                    .catch(error => console.error('Error fetching or processing Excel file:', error));
-            });
-
-            function displayLeaderboard(sheet) {
-                const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                const players = jsonData[0].slice(1); // Extract player names from row 1
-                const totalPoints = jsonData[62].slice(1); // Extract total points from row 63
-
-                const leaderboardBody = document.getElementById("leaderboard-body");
-
-                players.forEach((player, index) => {
-                    const tr = document.createElement('tr');
-                    const playerNameCell = document.createElement('td');
-                    playerNameCell.textContent = player;
-                    const playerPointsCell = document.createElement('td');
-                    playerPointsCell.textContent = totalPoints[index];
-                    tr.appendChild(playerNameCell);
-                    tr.appendChild(playerPointsCell);
-                    leaderboardBody.appendChild(tr);
-                });
-            }
-
-            function displayGameResults(sheet) {
-                const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                const gameResultsHeaders = jsonData[6].slice(3, 9); // Extract game headers from row 7, columns D - I
-                const gameResults = jsonData.slice(7); // Extract game results from row 8 onwards
-
-               
+                    // Display game results
+                    const gameResultsSheet = workbook.Sheets["Resultat"];
+                    const gameResultsBody = document.getElementById("game-results-body");
+                    for (let i = 6; i <= 11; i++) {
+                        const game = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 3 })].v;
+                        const result = [];
+                        for (let j = 3; j <= 8; j++) {
+                            result.push(gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: j })].v);
+                        }
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td>${game}</td><td>${result.join(' - ')}</td>`;
+                        gameResultsBody.appendChild(tr);
+                    }
+                })
+                .catch(error => console.error('Error fetching or processing Excel file:', error));
+        });
+    </script>
+</body>
+</html>
