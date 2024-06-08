@@ -13,6 +13,7 @@
     <div id="wrapper">
         <header id="header">
             <a href="index.html" class="logo">EM Tipskupong Ställning</a>
+            <div id="last-update-time"></div> <!-- Add this line -->
         </header>
         <nav id="nav">
             <ul class="links">
@@ -93,6 +94,7 @@
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
+    document.getElementById("last-update-time").textContent = "Last updated: " + new Date().toLocaleString();
     document.addEventListener('DOMContentLoaded', function() {
         fetch('data.xlsx')
             .then(response => response.arrayBuffer())
@@ -119,16 +121,18 @@
                 // Display game results
                 const gameResultsSheet = workbook.Sheets["Resultat"];
                 const gameResultsBody = document.getElementById("game-results-body");
-                for (let i = 6; i <= 65; i++) { // Adjusted to accommodate more games
-                    const game = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 3 })].v;
-                    const result = [];
-                    for (let j = 3; j <= 8; j++) {
-                        result.push(gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: j })].v);
-                    }
+                for (let i = 6; i <= 65; i++) {
+                    const homeTeam = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 3 })].v;
+                    const awayTeam = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 5 })].v;
+                    const result = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 6 })].v;
+                    const goalsHome = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 7 })].v;
+                    const goalsAway = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 8 })].v;
+                
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${game}</td><td>${result.join(' - ')}</td>`;
+                    tr.innerHTML = `<td>${homeTeam} vs ${awayTeam}</td><td>${result} (${goalsHome} - ${goalsAway})</td>`;
                     gameResultsBody.appendChild(tr);
                 }
+
             })
             .catch(error => console.error('Error fetching or processing Excel file:', error));
     });
