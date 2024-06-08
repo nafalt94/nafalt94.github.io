@@ -93,39 +93,45 @@
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('data.xlsx')
-                .then(response => response.arrayBuffer())
-                .then(data => {
-                    const workbook = XLSX.read(data, { type: 'array' });
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('data.xlsx')
+            .then(response => response.arrayBuffer())
+            .then(data => {
+                const workbook = XLSX.read(data, { type: 'array' });
 
-                    // Display leaderboard
-                    const leaderboardSheet = workbook.Sheets["Poäng_matcher"];
-                    const playerNames = XLSX.utils.sheet_to_json(leaderboardSheet, { header: 1 })[0].slice(2);
-                    const totalPoints = XLSX.utils.sheet_to_json(leaderboardSheet, { range: 62, header: 1 })[0].slice(2);
-                    const leaderboardBody = document.getElementById("leaderboard-body");
-                    playerNames.forEach((name, index) => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `<td>${name}</td><td>${totalPoints[index]}</td>`;
-                        leaderboardBody.appendChild(tr);
-                    });
+                // Display leaderboard
+                const leaderboardSheet = workbook.Sheets["Poäng_matcher"];
+                const playerNames = XLSX.utils.sheet_to_json(leaderboardSheet, { header: 1 })[0].slice(2);
+                const totalPoints = XLSX.utils.sheet_to_json(leaderboardSheet, { range: 62, header: 1 })[0].slice(2);
+                const leaderboardBody = document.getElementById("leaderboard-body");
+                const leaderboardData = [];
+                playerNames.forEach((name, index) => {
+                    leaderboardData.push({ name: name, points: totalPoints[index] });
+                });
+                // Sort leaderboard in descending order
+                leaderboardData.sort((a, b) => b.points - a.points);
+                leaderboardData.forEach(player => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${player.name}</td><td>${player.points}</td>`;
+                    leaderboardBody.appendChild(tr);
+                });
 
-                    // Display game results
-                    const gameResultsSheet = workbook.Sheets["Resultat"];
-                    const gameResultsBody = document.getElementById("game-results-body");
-                    for (let i = 6; i <= 11; i++) {
-                        const game = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 3 })].v;
-                        const result = [];
-                        for (let j = 3; j <= 8; j++) {
-                            result.push(gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: j })].v);
-                        }
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `<td>${game}</td><td>${result.join(' - ')}</td>`;
-                        gameResultsBody.appendChild(tr);
+                // Display game results
+                const gameResultsSheet = workbook.Sheets["Resultat"];
+                const gameResultsBody = document.getElementById("game-results-body");
+                for (let i = 6; i <= 65; i++) { // Adjusted to accommodate more games
+                    const game = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 3 })].v;
+                    const result = [];
+                    for (let j = 3; j <= 8; j++) {
+                        result.push(gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: j })].v);
                     }
-                })
-                .catch(error => console.error('Error fetching or processing Excel file:', error));
-        });
-    </script>
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${game}</td><td>${result.join(' - ')}</td>`;
+                    gameResultsBody.appendChild(tr);
+                }
+            })
+            .catch(error => console.error('Error fetching or processing Excel file:', error));
+    });
+</script>
 </body>
 </html>
