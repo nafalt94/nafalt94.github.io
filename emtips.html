@@ -21,13 +21,13 @@
 
             <!-- Header -->
             <header id="header">
-                <a href="emtips.html" class="logo">EM Tipskupong Ställning</a>
+                <a href="index.html" class="logo">EM Tipskupong Ställning</a>
             </header>
 
             <!-- Nav -->
             <nav id="nav">
                 <ul class="links">
-                    <li class="active"><a href="emtips.html">Back to Overview</a></li>
+                    <li class="active"><a href="index.html">Back to Overview</a></li>
                 </ul>
                 <ul class="icons">
                     <li><a href="https://www.linkedin.com/in/gustav-nåfält-32716b135" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
@@ -45,40 +45,40 @@
                         <p>Följ ställningen live för EM-tipsen.</p>
                     </header>
                     <div class="table-wrapper">
-                        <h2>Sheet 1</h2>
-                        <table id="sheet1-table">
+                        <h2>Resultat</h2>
+                        <table id="resultat-table">
                             <thead>
-                                <tr id="sheet1-headers">
+                                <tr id="resultat-headers">
                                     <!-- Table headers will be inserted here -->
                                 </tr>
                             </thead>
-                            <tbody id="sheet1-body">
+                            <tbody id="resultat-body">
                                 <!-- Table data will be inserted here -->
                             </tbody>
                         </table>
                     </div>
                     <div class="table-wrapper">
-                        <h2>Sheet 2</h2>
-                        <table id="sheet2-table">
+                        <h2>Kuponger</h2>
+                        <table id="kuponger-table">
                             <thead>
-                                <tr id="sheet2-headers">
+                                <tr id="kuponger-headers">
                                     <!-- Table headers will be inserted here -->
                                 </tr>
                             </thead>
-                            <tbody id="sheet2-body">
+                            <tbody id="kuponger-body">
                                 <!-- Table data will be inserted here -->
                             </tbody>
                         </table>
                     </div>
                     <div class="table-wrapper">
-                        <h2>Sheet 3</h2>
-                        <table id="sheet3-table">
+                        <h2>Poäng Matcher</h2>
+                        <table id="poang-matcher-table">
                             <thead>
-                                <tr id="sheet3-headers">
+                                <tr id="poang-matcher-headers">
                                     <!-- Table headers will be inserted here -->
                                 </tr>
                             </thead>
-                            <tbody id="sheet3-body">
+                            <tbody id="poang-matcher-body">
                                 <!-- Table data will be inserted here -->
                             </tbody>
                         </table>
@@ -139,21 +139,25 @@
                     .then(data => {
                         const workbook = XLSX.read(data, { type: 'array' });
 
-                        const sheets = ["Sheet1", "Sheet2", "Sheet3"];
+                        const sheets = {
+                            "Resultat": "resultat",
+                            "Kuponger": "kuponger",
+                            "Poäng_matcher": "poang-matcher"
+                        };
 
-                        sheets.forEach((sheetName, index) => {
+                        Object.entries(sheets).forEach(([sheetName, elementId]) => {
                             const sheet = workbook.Sheets[sheetName];
                             const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
                             const headers = jsonData[0];
-                            const tableHeaders = document.getElementById(`sheet${index+1}-headers`);
+                            const tableHeaders = document.getElementById(`${elementId}-headers`);
                             headers.forEach(header => {
                                 const th = document.createElement('th');
                                 th.textContent = header;
                                 tableHeaders.appendChild(th);
                             });
 
-                            const tableBody = document.getElementById(`sheet${index+1}-body`);
+                            const tableBody = document.getElementById(`${elementId}-body`);
                             jsonData.slice(1).forEach(row => {
                                 const tr = document.createElement('tr');
                                 row.forEach(cell => {
@@ -165,9 +169,9 @@
                             });
                         });
 
-                        // Assuming that you want to generate charts for Sheet1 and Sheet2
-                        generateChart(workbook.Sheets["Sheet1"], "chart1");
-                        generateChart(workbook.Sheets["Sheet2"], "chart2");
+                        // Assuming that you want to generate charts for "Resultat" and "Kuponger"
+                        generateChart(workbook.Sheets["Resultat"], "chart1");
+                        generateChart(workbook.Sheets["Kuponger"], "chart2");
                     })
                     .catch(error => console.error('Error fetching or processing Excel file:', error));
             });
