@@ -105,7 +105,7 @@
                 // Display leaderboard
                 const leaderboardSheet = workbook.Sheets["Poäng_matcher"];
                 const playerNames = XLSX.utils.sheet_to_json(leaderboardSheet, { header: 1 })[0].slice(2);
-                const totalPoints = XLSX.utils.sheet_to_json(leaderboardSheet, { range: 63, header: 1 })[0].slice(2);
+                const totalPoints = XLSX.utils.sheet_to_json(leaderboardSheet, { range: 62, header: 1 })[0].slice(2);
                 const leaderboardBody = document.getElementById("leaderboard-body");
                 const leaderboardData = [];
                 playerNames.forEach((name, index) => {
