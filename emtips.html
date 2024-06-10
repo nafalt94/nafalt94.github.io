@@ -13,7 +13,6 @@
     <div id="wrapper">
         <header id="header">
             <a href="emtips.html" class="logo">EM Tipskupong Ställning</a>
-            <div id="last-update-time"></div>
         </header>
         <nav id="nav">
             <ul class="links">
@@ -95,7 +94,6 @@
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-    document.getElementById("last-update-time").textContent = "Last updated: " + new Date().toLocaleString();
     document.addEventListener('DOMContentLoaded', function() {
         fetch('data.xlsx')
             .then(response => response.arrayBuffer())
