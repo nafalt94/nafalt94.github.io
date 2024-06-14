@@ -32,13 +32,14 @@
                 </header>
                 <div class="table-wrapper">
                     <h2>Leaderboard</h2>
+                    <p>Total Prize Pot: 3600 kr</p> <!-- Added total prize pot information -->
                     <table id="leaderboard-table">
                         <thead>
                             <tr>
                                 <th>Rank</th>
                                 <th>Player</th>
                                 <th>Total Points</th>
-                                <th>Utdelning</th>
+                                <th>Utdelning (Percentage)</th> <!-- Added percentage information -->
                             </tr>
                         </thead>
                         <tbody id="leaderboard-body">
@@ -122,14 +123,16 @@
                 leaderboardData.forEach((player, index) => {
                     if (index < 5) {
                         player.payout = prizePool * distributions[index];
+                        player.percentage = (distributions[index] * 100).toFixed(2) + '%';
                     } else {
                         player.payout = 0;
+                        player.percentage = '';
                     }
                 });
 
                 leaderboardData.forEach(player => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${player.rank}</td><td>${player.name}</td><td>${player.points}</td><td>${player.payout ? player.payout.toFixed(2) + ' kr' : ''}</td>`;
+                    tr.innerHTML = `<td>${player.rank}</td><td>${player.name}</td><td>${player.points}</td><td>${player.payout ? player.payout.toFixed(2) + ' kr (' + player.percentage + ')' : ''}</td>`;
                     leaderboardBody.appendChild(tr);
                 });
 
@@ -137,11 +140,11 @@
                 const gameResultsSheet = workbook.Sheets["Resultat"];
                 const gameResultsBody = document.getElementById("game-results-body");
                 for (let i = 6; i <= 65; i++) {
-                    const homeTeam = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 3 })].v;
-                    const awayTeam = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 5 })].v;
-                    const result = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 6 })].v;
-                    const goalsHome = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 7 })].v;
-                    const goalsAway = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 8 })].v;
+                    const homeTeam = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 4 })].v;
+                    const awayTeam = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 6 })].v;
+                    const result = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 8 })].v;
+                    const goalsHome = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 9 })].v;
+                    const goalsAway = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 11 })].v;
                 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `<td>${homeTeam} vs ${awayTeam}</td><td>${result} (${goalsHome} - ${goalsAway})</td>`;
