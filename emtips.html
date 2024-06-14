@@ -118,7 +118,7 @@
 
                 // Calculate distribution
                 const prizePool = 3600;
-                const distributions = [0.60, 0.25, 0.05, 0.03, 0.02];
+                const distributions = [0.60, 0.15, 0.12, 0.08, 0.05];
                 leaderboardData.forEach((player, index) => {
                     if (index < 5) {
                         player.payout = prizePool * distributions[index];
