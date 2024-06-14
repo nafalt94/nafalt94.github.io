@@ -38,6 +38,7 @@
                                 <th>Rank</th>
                                 <th>Player</th>
                                 <th>Total Points</th>
+                                <th>Utdelning</th>
                             </tr>
                         </thead>
                         <tbody id="leaderboard-body">
@@ -114,9 +115,21 @@
                 leaderboardData.forEach((player, index) => {
                     player.rank = index + 1;
                 });
+
+                // Calculate distribution
+                const prizePool = 3600;
+                const distributions = [0.60, 0.25, 0.05, 0.03, 0.02];
+                leaderboardData.forEach((player, index) => {
+                    if (index < 5) {
+                        player.payout = prizePool * distributions[index];
+                    } else {
+                        player.payout = 0;
+                    }
+                });
+
                 leaderboardData.forEach(player => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${player.rank}</td><td>${player.name}</td><td>${player.points}</td>`;
+                    tr.innerHTML = `<td>${player.rank}</td><td>${player.name}</td><td>${player.points}</td><td>${player.payout ? player.payout.toFixed(2) + ' kr' : ''}</td>`;
                     leaderboardBody.appendChild(tr);
                 });
 
