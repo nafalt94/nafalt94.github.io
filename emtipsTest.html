@@ -120,15 +120,35 @@
                 // Calculate distribution
                 const prizePool = 3600;
                 const distributions = [0.55, 0.20, 0.12, 0.08, 0.05];
-                leaderboardData.forEach((player, index) => {
-                    if (index < 5) {
-                        player.payout = prizePool * distributions[index];
-                        player.percentage = (distributions[index] * 100).toFixed(2) + '%';
-                    } else {
-                        player.payout = 0;
-                        player.percentage = '';
+                let payouts = Array(playerNames.length).fill(0);
+                let rank = 1;
+                
+                for (let i = 0; i < leaderboardData.length; i++) {
+                    let samePointsGroup = [leaderboardData[i]];
+                    while (i + 1 < leaderboardData.length && leaderboardData[i].points === leaderboardData[i + 1].points) {
+                        samePointsGroup.push(leaderboardData[++i]);
                     }
-                });
+                    
+                    let totalDistribution = 0;
+                    for (let j = 0; j < samePointsGroup.length; j++) {
+                        if (rank + j - 1 < distributions.length) {
+                            totalDistribution += distributions[rank + j - 1];
+                        }
+                    }
+                    let averageDistribution = totalDistribution / samePointsGroup.length;
+                    
+                    samePointsGroup.forEach(player => {
+                        if (rank - 1 < distributions.length) {
+                            player.payout = prizePool * averageDistribution;
+                            player.percentage = (averageDistribution * 100).toFixed(2) + '%';
+                        } else {
+                            player.payout = 0;
+                            player.percentage = '';
+                        }
+                    });
+                    
+                    rank += samePointsGroup.length;
+                }
 
                 leaderboardData.forEach(player => {
                     const tr = document.createElement('tr');
