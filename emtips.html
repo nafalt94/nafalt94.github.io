@@ -46,14 +46,14 @@
                 </div>
                 <div class="table-wrapper">
                     <h2>Leaderboard</h2>
-                    <p>Total Prize Pot: 3600 kr</p> <!-- Added total prize pot information -->
+                    <p>Total Prize Pot: 3600 kr</p>
                     <table id="leaderboard-table">
                         <thead>
                             <tr>
                                 <th>Rank</th>
                                 <th>Player</th>
                                 <th>Total Points</th>
-                                <th>Utdelning (Percentage)</th> <!-- Added percentage information -->
+                                <th>Utdelning (Percentage)</th>
                             </tr>
                         </thead>
                         <tbody id="leaderboard-body">
@@ -128,15 +128,20 @@
                 });
                 // Sort leaderboard in descending order
                 leaderboardData.sort((a, b) => b.points - a.points);
-                leaderboardData.forEach((player, index) => {
-                    player.rank = index + 1;
-                });
+
+                // Adjust ranks for players with the same points
+                let currentRank = 1;
+                for (let i = 0; i < leaderboardData.length; i++) {
+                    if (i > 0 && leaderboardData[i].points !== leaderboardData[i - 1].points) {
+                        currentRank = i + 1;
+                    }
+                    leaderboardData[i].rank = currentRank;
+                }
 
                 // Calculate distribution
                 const prizePool = 3600;
                 const distributions = [0.55, 0.20, 0.12, 0.08, 0.05];
                 let payouts = Array(playerNames.length).fill(0);
-                let rank = 1;
 
                 for (let i = 0; i < leaderboardData.length; i++) {
                     let samePointsGroup = [leaderboardData[i]];
@@ -146,14 +151,14 @@
 
                     let totalDistribution = 0;
                     for (let j = 0; j < samePointsGroup.length; j++) {
-                        if (rank + j - 1 < distributions.length) {
-                            totalDistribution += distributions[rank + j - 1];
+                        if (samePointsGroup[0].rank + j - 1 < distributions.length) {
+                            totalDistribution += distributions[samePointsGroup[0].rank + j - 1];
                         }
                     }
                     let averageDistribution = totalDistribution / samePointsGroup.length;
 
                     samePointsGroup.forEach(player => {
-                        if (rank - 1 < distributions.length) {
+                        if (player.rank - 1 < distributions.length) {
                             player.payout = prizePool * averageDistribution;
                             player.percentage = (averageDistribution * 100).toFixed(2) + '%';
                         } else {
@@ -161,8 +166,6 @@
                             player.percentage = '';
                         }
                     });
-
-                    rank += samePointsGroup.length;
                 }
 
                 leaderboardData.forEach(player => {
