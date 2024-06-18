@@ -31,6 +31,20 @@
                     <p>Följ ställningen live för EM-tipsen.</p>
                 </header>
                 <div class="table-wrapper">
+                    <h2>Last Reported Game</h2>
+                    <table id="last-game-table">
+                        <thead>
+                            <tr>
+                                <th>Game</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="last-game-body">
+                            <!-- Last game result will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-wrapper">
                     <h2>Leaderboard</h2>
                     <p>Total Prize Pot: 3600 kr</p> <!-- Added total prize pot information -->
                     <table id="leaderboard-table">
@@ -97,99 +111,105 @@
     <script src="assets/js/main.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-    const cacheBuster = new Date().getTime();
-    fetch(`data.xlsx?cacheBuster=${cacheBuster}`)
-        .then(response => response.arrayBuffer())
-        .then(data => {
-            const workbook = XLSX.read(data, { type: 'array' });
+        const cacheBuster = new Date().getTime();
+        fetch(`data.xlsx?cacheBuster=${cacheBuster}`)
+            .then(response => response.arrayBuffer())
+            .then(data => {
+                const workbook = XLSX.read(data, { type: 'array' });
 
-            // Display leaderboard
-            const leaderboardSheet = workbook.Sheets["Poäng_matcher"];
-            const playerNames = XLSX.utils.sheet_to_json(leaderboardSheet, { header: 1 })[0].slice(2);
-            const totalPoints = XLSX.utils.sheet_to_json(leaderboardSheet, { range: 62, header: 1 })[0].slice(2);
-            const leaderboardBody = document.getElementById("leaderboard-body");
-            const leaderboardData = [];
-            playerNames.forEach((name, index) => {
-                leaderboardData.push({ name: name, points: totalPoints[index] });
-            });
-            // Sort leaderboard in descending order
-            leaderboardData.sort((a, b) => b.points - a.points);
-            leaderboardData.forEach((player, index) => {
-                player.rank = index + 1;
-            });
-
-            // Calculate distribution
-            const prizePool = 3600;
-            const distributions = [0.55, 0.20, 0.12, 0.08, 0.05];
-            let payouts = Array(playerNames.length).fill(0);
-            let rank = 1;
-            
-            for (let i = 0; i < leaderboardData.length; i++) {
-                let samePointsGroup = [leaderboardData[i]];
-                while (i + 1 < leaderboardData.length && leaderboardData[i].points === leaderboardData[i + 1].points) {
-                    samePointsGroup.push(leaderboardData[++i]);
-                }
-                
-                let totalDistribution = 0;
-                for (let j = 0; j < samePointsGroup.length; j++) {
-                    if (rank + j - 1 < distributions.length) {
-                        totalDistribution += distributions[rank + j - 1];
-                    }
-                }
-                let averageDistribution = totalDistribution / samePointsGroup.length;
-                
-                samePointsGroup.forEach(player => {
-                    if (rank - 1 < distributions.length) {
-                        player.payout = prizePool * averageDistribution;
-                        player.percentage = (averageDistribution * 100).toFixed(2) + '%';
-                    } else {
-                        player.payout = 0;
-                        player.percentage = '';
-                    }
+                // Display leaderboard
+                const leaderboardSheet = workbook.Sheets["Poäng_matcher"];
+                const playerNames = XLSX.utils.sheet_to_json(leaderboardSheet, { header: 1 })[0].slice(2);
+                const totalPoints = XLSX.utils.sheet_to_json(leaderboardSheet, { range: 62, header: 1 })[0].slice(2);
+                const leaderboardBody = document.getElementById("leaderboard-body");
+                const leaderboardData = [];
+                playerNames.forEach((name, index) => {
+                    leaderboardData.push({ name: name, points: totalPoints[index] });
                 });
-                
-                rank += samePointsGroup.length;
-            }
+                // Sort leaderboard in descending order
+                leaderboardData.sort((a, b) => b.points - a.points);
+                leaderboardData.forEach((player, index) => {
+                    player.rank = index + 1;
+                });
 
-            leaderboardData.forEach(player => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${player.rank}</td><td>${player.name}</td><td>${player.points}</td><td>${player.payout ? player.payout.toFixed(2) + ' kr (' + player.percentage + ')' : ''}</td>`;
-                leaderboardBody.appendChild(tr);
-            });
+                // Calculate distribution
+                const prizePool = 3600;
+                const distributions = [0.55, 0.20, 0.12, 0.08, 0.05];
+                let payouts = Array(playerNames.length).fill(0);
+                let rank = 1;
 
-            // Display game results
-            const gameResultsSheet = workbook.Sheets["Resultat"];
-            const gameResultsBody = document.getElementById("game-results-body");
-            for (let i = 6; i <= 65; i++) {
-                const homeTeamCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 4 })];
-                const awayTeamCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 6 })];
-                const goalsHomeCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 8 })];
-                const goalsAwayCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 10 })];
-
-                if (homeTeamCell && awayTeamCell && goalsHomeCell && goalsAwayCell) {
-                    const homeTeam = homeTeamCell.v;
-                    const awayTeam = awayTeamCell.v;
-                    const goalsHome = goalsHomeCell.v;
-                    const goalsAway = goalsAwayCell.v;
-
-                    let resultSign;
-                    if (goalsHome > goalsAway) {
-                        resultSign = "1";
-                    } else if (goalsHome < goalsAway) {
-                        resultSign = "2";
-                    } else {
-                        resultSign = "X";
+                for (let i = 0; i < leaderboardData.length; i++) {
+                    let samePointsGroup = [leaderboardData[i]];
+                    while (i + 1 < leaderboardData.length && leaderboardData[i].points === leaderboardData[i + 1].points) {
+                        samePointsGroup.push(leaderboardData[++i]);
                     }
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${homeTeam} vs ${awayTeam}</td><td>${resultSign} (${goalsHome} - ${goalsAway})</td>`;
-                    gameResultsBody.appendChild(tr);
-                }
-            }
+                    let totalDistribution = 0;
+                    for (let j = 0; j < samePointsGroup.length; j++) {
+                        if (rank + j - 1 < distributions.length) {
+                            totalDistribution += distributions[rank + j - 1];
+                        }
+                    }
+                    let averageDistribution = totalDistribution / samePointsGroup.length;
 
-        })
-        .catch(error => console.error('Error fetching or processing Excel file:', error));
-});
+                    samePointsGroup.forEach(player => {
+                        if (rank - 1 < distributions.length) {
+                            player.payout = prizePool * averageDistribution;
+                            player.percentage = (averageDistribution * 100).toFixed(2) + '%';
+                        } else {
+                            player.payout = 0;
+                            player.percentage = '';
+                        }
+                    });
+
+                    rank += samePointsGroup.length;
+                }
+
+                leaderboardData.forEach(player => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${player.rank}</td><td>${player.name}</td><td>${player.points}</td><td>${player.payout ? player.payout.toFixed(2) + ' kr (' + player.percentage + ')' : ''}</td>`;
+                    leaderboardBody.appendChild(tr);
+                });
+
+                // Display game results
+                const gameResultsSheet = workbook.Sheets["Resultat"];
+                const gameResultsBody = document.getElementById("game-results-body");
+                const lastGameBody = document.getElementById("last-game-body");
+                let lastGameResult = null;
+                for (let i = 6; i <= 65; i++) {
+                    const homeTeamCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 4 })];
+                    const awayTeamCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 6 })];
+                    const goalsHomeCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 8 })];
+                    const goalsAwayCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 10 })];
+
+                    if (homeTeamCell && awayTeamCell && goalsHomeCell && goalsAwayCell) {
+                        const homeTeam = homeTeamCell.v;
+                        const awayTeam = awayTeamCell.v;
+                        const goalsHome = goalsHomeCell.v;
+                        const goalsAway = goalsAwayCell.v;
+
+                        let resultSign;
+                        if (goalsHome > goalsAway) {
+                            resultSign = "1";
+                        } else if (goalsHome < goalsAway) {
+                            resultSign = "2";
+                        } else {
+                            resultSign = "X";
+                        }
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td>${homeTeam} vs ${awayTeam}</td><td>${resultSign} (${goalsHome} - ${goalsAway})</td>`;
+                        gameResultsBody.appendChild(tr);
+                        lastGameResult = tr;
+                    }
+                }
+                if (lastGameResult) {
+                    lastGameBody.appendChild(lastGameResult.cloneNode(true));
+                }
+
+            })
+            .catch(error => console.error('Error fetching or processing Excel file:', error));
+    });
     </script>
 </body>
 </html>
