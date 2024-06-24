@@ -121,110 +121,46 @@
             .then(data => {
                 const workbook = XLSX.read(data, { type: 'array' });
 
-                // Display leaderboard
+                // Get leaderboard data
                 const leaderboardSheet = workbook.Sheets["Poäng_matcher"];
-                const playerNames = XLSX.utils.sheet_to_json(leaderboardSheet, { header: 1 })[0].slice(2);
-                const totalPoints = XLSX.utils.sheet_to_json(leaderboardSheet, { range: 62, header: 1 })[0].slice(2);
-                const leaderboardBody = document.getElementById("leaderboard-body");
-                const leaderboardData = [];
-                playerNames.forEach((name, index) => {
-                    leaderboardData.push({ name: name, points: totalPoints[index] });
+                const rows = XLSX.utils.sheet_to_json(leaderboardSheet, { header: 1 });
+                const playerNames = rows[0].slice(2);
+                const pointsData = rows.slice(1).map(row => row.slice(2));
+                
+                // Calculate cumulative points
+                const cumulativePoints = playerNames.map((_, playerIndex) => {
+                    return pointsData.reduce((acc, row) => {
+                        const lastValue = acc.length > 0 ? acc[acc.length - 1] : 0;
+                        acc.push(lastValue + (row[playerIndex] || 0));
+                        return acc;
+                    }, []);
                 });
-                // Sort leaderboard in descending order
-                leaderboardData.sort((a, b) => b.points - a.points);
 
-                // Adjust ranks for players with the same points
-                let currentRank = 1;
-                for (let i = 0; i < leaderboardData.length; i++) {
-                    if (i > 0 && leaderboardData[i].points !== leaderboardData[i - 1].points) {
-                        currentRank = i + 1;
-                    }
-                    leaderboardData[i].rank = currentRank;
-                }
+                // Create rank data
+                const rankData = cumulativePoints[0].map((_, gameIndex) => {
+                    const pointsAtGame = cumulativePoints.map(points => points[gameIndex]);
+                    const sortedPoints = [...pointsAtGame].sort((a, b) => b - a);
+                    return pointsAtGame.map(points => sortedPoints.indexOf(points) + 1);
+                });
 
-                // Calculate distribution
-                const prizePool = 3600;
-                const distributions = [0.55, 0.20, 0.12, 0.08, 0.05];
-                let payouts = Array(playerNames.length).fill(0);
-
-                for (let i = 0; i < leaderboardData.length; i++) {
-                    let samePointsGroup = [leaderboardData[i]];
-                    while (i + 1 < leaderboardData.length && leaderboardData[i].points === leaderboardData[i + 1].points) {
-                        samePointsGroup.push(leaderboardData[++i]);
-                    }
-
-                    let totalDistribution = 0;
-                    for (let j = 0; j < samePointsGroup.length; j++) {
-                        if (samePointsGroup[0].rank + j - 1 < distributions.length) {
-                            totalDistribution += distributions[samePointsGroup[0].rank + j - 1];
-                        }
-                    }
-                    let averageDistribution = totalDistribution / samePointsGroup.length;
-
-                    samePointsGroup.forEach(player => {
-                        if (player.rank - 1 < distributions.length) {
-                            player.payout = prizePool * averageDistribution;
-                            player.percentage = (averageDistribution * 100).toFixed(2) + '%';
-                        } else {
-                            player.payout = 0;
-                            player.percentage = '';
-                        }
-                    });
-                }
-
-                leaderboardData.forEach(player => {
+                // Populate leaderboard table with the latest ranks
+                const latestRanks = rankData[rankData.length - 1];
+                const leaderboardBody = document.getElementById("leaderboard-body");
+                latestRanks.forEach((rank, index) => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${player.rank}</td><td>${player.name}</td><td>${player.points}</td><td>${player.payout ? player.payout.toFixed(2) + ' kr (' + player.percentage + ')' : ''}</td>`;
+                    tr.innerHTML = `<td>${rank}</td><td>${playerNames[index]}</td><td>${cumulativePoints[index][cumulativePoints[index].length - 1]}</td><td></td>`;
                     leaderboardBody.appendChild(tr);
                 });
 
-                // Display game results
-                const gameResultsSheet = workbook.Sheets["Resultat"];
-                const gameResultsBody = document.getElementById("game-results-body");
-                const lastGameBody = document.getElementById("last-game-body");
-                let lastGameResult = null;
-                for (let i = 6; i <= 65; i++) {
-                    const homeTeamCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 4 })];
-                    const awayTeamCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 6 })];
-                    const goalsHomeCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 8 })];
-                    const goalsAwayCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 10 })];
-
-                    if (homeTeamCell && awayTeamCell && goalsHomeCell && goalsAwayCell) {
-                        const homeTeam = homeTeamCell.v;
-                        const awayTeam = awayTeamCell.v;
-                        const goalsHome = goalsHomeCell.v;
-                        const goalsAway = goalsAwayCell.v;
-
-                        let resultSign;
-                        if (goalsHome > goalsAway) {
-                            resultSign = "1";
-                        } else if (goalsHome < goalsAway) {
-                            resultSign = "2";
-                        } else {
-                            resultSign = "X";
-                        }
-
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `<td>${homeTeam} vs ${awayTeam}</td><td>${resultSign} (${goalsHome} - ${goalsAway})</td>`;
-                        gameResultsBody.appendChild(tr);
-                        lastGameResult = tr;
-                    }
-                }
-                if (lastGameResult) {
-                    lastGameBody.appendChild(lastGameResult.cloneNode(true));
-                }
-
                 // Create Bump Chart
                 const bumpChartCtx = document.getElementById('bumpChart').getContext('2d');
+                const timePoints = rows.slice(1).map((_, index) => `Game ${index + 1}`);
 
-                // Get the data for bump chart
-                const timePoints = XLSX.utils.sheet_to_json(leaderboardSheet, { header: 1 }).map(row => row[1]).slice(2);
-                const rankData = playerNames.map((name, index) => {
-                    const ranks = timePoints.map((_, timeIndex) => leaderboardData.findIndex(player => player.name === name && player.timeIndex === timeIndex) + 1);
+                const chartData = playerNames.map((name, playerIndex) => {
                     return {
                         label: name,
-                        data: ranks,
-                        borderColor: `hsl(${index * 360 / playerNames.length}, 100%, 50%)`,
+                        data: rankData.map(ranks => ranks[playerIndex]),
+                        borderColor: `hsl(${playerIndex * 360 / playerNames.length}, 100%, 50%)`,
                         backgroundColor: 'transparent',
                         borderWidth: 2
                     };
@@ -234,7 +170,7 @@
                     type: 'line',
                     data: {
                         labels: timePoints,
-                        datasets: rankData
+                        datasets: chartData
                     },
                     options: {
                         scales: {
@@ -276,6 +212,42 @@
                         }
                     }
                 });
+
+                // Display game results
+                const gameResultsSheet = workbook.Sheets["Resultat"];
+                const gameResultsBody = document.getElementById("game-results-body");
+                const lastGameBody = document.getElementById("last-game-body");
+                let lastGameResult = null;
+                for (let i = 6; i <= 65; i++) {
+                    const homeTeamCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 4 })];
+                    const awayTeamCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 6 })];
+                    const goalsHomeCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 8 })];
+                    const goalsAwayCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 10 })];
+
+                    if (homeTeamCell && awayTeamCell && goalsHomeCell && goalsAwayCell) {
+                        const homeTeam = homeTeamCell.v;
+                        const awayTeam = awayTeamCell.v;
+                        const goalsHome = goalsHomeCell.v;
+                        const goalsAway = goalsAwayCell.v;
+
+                        let resultSign;
+                        if (goalsHome > goalsAway) {
+                            resultSign = "1";
+                        } else if (goalsHome < goalsAway) {
+                            resultSign = "2";
+                        } else {
+                            resultSign = "X";
+                        }
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td>${homeTeam} vs ${awayTeam}</td><td>${resultSign} (${goalsHome} - ${goalsAway})</td>`;
+                        gameResultsBody.appendChild(tr);
+                        lastGameResult = tr;
+                    }
+                }
+                if (lastGameResult) {
+                    lastGameBody.appendChild(lastGameResult.cloneNode(true));
+                }
 
             })
             .catch(error => console.error('Error fetching or processing Excel file:', error));
