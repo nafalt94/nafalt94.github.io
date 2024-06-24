@@ -125,8 +125,8 @@
                 const leaderboardSheet = workbook.Sheets["Poäng_matcher"];
                 const rows = XLSX.utils.sheet_to_json(leaderboardSheet, { header: 1 });
                 const playerNames = rows[0].slice(2);
-                const pointsData = rows.slice(1).map(row => row.slice(2));
-                
+                const pointsData = rows.slice(1, 62).map(row => row.slice(2));
+
                 // Calculate cumulative points
                 const cumulativePoints = playerNames.map((_, playerIndex) => {
                     return pointsData.reduce((acc, row) => {
@@ -135,6 +135,9 @@
                         return acc;
                     }, []);
                 });
+
+                // Get x-axis labels
+                const timePoints = rows.slice(1, 62).map(row => `${row[0]} ${row[1]}`);
 
                 // Populate leaderboard table with the latest cumulative points
                 const leaderboardBody = document.getElementById("leaderboard-body");
@@ -152,7 +155,6 @@
 
                 // Create Bump Chart
                 const bumpChartCtx = document.getElementById('bumpChart').getContext('2d');
-                const timePoints = rows.slice(1).map((_, index) => `Game ${index + 1}`);
 
                 const chartData = playerNames.map((name, playerIndex) => {
                     return {
@@ -182,7 +184,7 @@
                             x: {
                                 title: {
                                     display: true,
-                                    text: 'Time'
+                                    text: 'Game'
                                 }
                             }
                         },
