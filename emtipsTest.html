@@ -62,7 +62,7 @@
                     </table>
                 </div>
                 <div class="table-wrapper">
-                    <h2>Bump Chart of Leaderboard Over Time</h2>
+                    <h2>Bump Chart of Cumulative Points Over Time</h2>
                     <canvas id="bumpChart"></canvas>
                 </div>
                 <div class="table-wrapper">
@@ -136,19 +136,17 @@
                     }, []);
                 });
 
-                // Create rank data
-                const rankData = cumulativePoints[0].map((_, gameIndex) => {
-                    const pointsAtGame = cumulativePoints.map(points => points[gameIndex]);
-                    const sortedPoints = [...pointsAtGame].sort((a, b) => b - a);
-                    return pointsAtGame.map(points => sortedPoints.indexOf(points) + 1);
-                });
-
-                // Populate leaderboard table with the latest ranks
-                const latestRanks = rankData[rankData.length - 1];
+                // Populate leaderboard table with the latest cumulative points
                 const leaderboardBody = document.getElementById("leaderboard-body");
-                latestRanks.forEach((rank, index) => {
+                const latestCumulativePoints = cumulativePoints.map(points => points[points.length - 1]);
+                const sortedPlayers = playerNames.map((name, index) => ({
+                    name: name,
+                    points: latestCumulativePoints[index]
+                })).sort((a, b) => b.points - a.points);
+
+                sortedPlayers.forEach((player, index) => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${rank}</td><td>${playerNames[index]}</td><td>${cumulativePoints[index][cumulativePoints[index].length - 1]}</td><td></td>`;
+                    tr.innerHTML = `<td>${index + 1}</td><td>${player.name}</td><td>${player.points}</td><td></td>`;
                     leaderboardBody.appendChild(tr);
                 });
 
@@ -159,7 +157,7 @@
                 const chartData = playerNames.map((name, playerIndex) => {
                     return {
                         label: name,
-                        data: rankData.map(ranks => ranks[playerIndex]),
+                        data: cumulativePoints[playerIndex],
                         borderColor: `hsl(${playerIndex * 360 / playerNames.length}, 100%, 50%)`,
                         backgroundColor: 'transparent',
                         borderWidth: 2
@@ -175,14 +173,10 @@
                     options: {
                         scales: {
                             y: {
-                                reverse: true,
-                                beginAtZero: false,
-                                ticks: {
-                                    stepSize: 1
-                                },
+                                beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: 'Rank'
+                                    text: 'Cumulative Points'
                                 }
                             },
                             x: {
@@ -198,7 +192,7 @@
                             },
                             tooltip: {
                                 callbacks: {
-                                    label: (context) => `${context.dataset.label}: Rank ${context.raw}`
+                                    label: (context) => `${context.dataset.label}: ${context.raw}`
                                 }
                             }
                         },
