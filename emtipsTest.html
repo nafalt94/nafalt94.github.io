@@ -160,13 +160,13 @@
                     return {
                         label: name,
                         data: cumulativePoints[playerIndex],
-                        borderColor: `hsl(${playerIndex * 360 / playerNames.length}, 100%, 50%)`,
+                        borderColor: `hsl(${playerIndex * (360 / playerNames.length)}, 80%, 50%)`, // Adjust saturation for better visibility
                         backgroundColor: 'transparent',
                         borderWidth: 2
                     };
                 });
 
-                new Chart(bumpChartCtx, {
+                const bumpChart = new Chart(bumpChartCtx, {
                     type: 'line',
                     data: {
                         labels: timePoints,
@@ -190,7 +190,18 @@
                         },
                         plugins: {
                             legend: {
-                                display: true
+                                display: true,
+                                onClick: (e, legendItem, legend) => {
+                                    const index = legendItem.datasetIndex;
+                                    const chart = legend.chart;
+                                    const meta = chart.getDatasetMeta(index);
+
+                                    // Toggle visibility of the clicked dataset
+                                    meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+
+                                    // Update the chart
+                                    chart.update();
+                                }
                             },
                             tooltip: {
                                 callbacks: {
