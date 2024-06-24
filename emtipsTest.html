@@ -30,9 +30,6 @@
                     <h1>EM Tipskupong<br/>Ställning</h1>
                     <p>Följ ställningen live för EM-tipsen.</p>
                 </header>
-                <div class="important-message">
-                    <p><strong>Grupp A är rapporterad!</strong></p>
-                </div>
                 <div class="table-wrapper">
                     <h2>Last Reported Game</h2>
                     <table id="last-game-table">
@@ -63,6 +60,10 @@
                             <!-- Player data will be inserted here -->
                         </tbody>
                     </table>
+                </div>
+                <div class="table-wrapper">
+                    <h2>Bump Chart of Leaderboard Over Time</h2>
+                    <canvas id="bumpChart"></canvas>
                 </div>
                 <div class="table-wrapper">
                     <h2>Game Results</h2>
@@ -212,6 +213,69 @@
                 if (lastGameResult) {
                     lastGameBody.appendChild(lastGameResult.cloneNode(true));
                 }
+
+                // Create Bump Chart
+                const bumpChartCtx = document.getElementById('bumpChart').getContext('2d');
+
+                // Get the data for bump chart
+                const timePoints = XLSX.utils.sheet_to_json(leaderboardSheet, { header: 1 }).map(row => row[1]).slice(2);
+                const rankData = playerNames.map((name, index) => {
+                    const ranks = timePoints.map((_, timeIndex) => leaderboardData.findIndex(player => player.name === name && player.timeIndex === timeIndex) + 1);
+                    return {
+                        label: name,
+                        data: ranks,
+                        borderColor: `hsl(${index * 360 / playerNames.length}, 100%, 50%)`,
+                        backgroundColor: 'transparent',
+                        borderWidth: 2
+                    };
+                });
+
+                new Chart(bumpChartCtx, {
+                    type: 'line',
+                    data: {
+                        labels: timePoints,
+                        datasets: rankData
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                reverse: true,
+                                beginAtZero: false,
+                                ticks: {
+                                    stepSize: 1
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Rank'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Time'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => `${context.dataset.label}: Rank ${context.raw}`
+                                }
+                            }
+                        },
+                        elements: {
+                            line: {
+                                tension: 0.3
+                            },
+                            point: {
+                                radius: 3
+                            }
+                        }
+                    }
+                });
 
             })
             .catch(error => console.error('Error fetching or processing Excel file:', error));
