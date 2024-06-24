@@ -63,7 +63,13 @@
                 </div>
                 <div class="table-wrapper">
                     <h2>Bump Chart of Cumulative Points Over Time</h2>
-                    <canvas id="bumpChart"></canvas>
+                    <div>
+                        <canvas id="bumpChart"></canvas>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="toggleAllPlayers">
+                        <label for="toggleAllPlayers">Toggle All Players</label>
+                    </div>
                 </div>
                 <div class="table-wrapper">
                     <h2>Game Results</h2>
@@ -210,14 +216,21 @@
                             }
                         },
                         elements: {
-                            line: {
-                                tension: 0.3
-                            },
                             point: {
-                                radius: 3
+                                radius: 0
                             }
                         }
                     }
+                });
+
+                // Toggle all players checkbox
+                const toggleAllPlayersCheckbox = document.getElementById('toggleAllPlayers');
+                toggleAllPlayersCheckbox.addEventListener('change', () => {
+                    const isChecked = toggleAllPlayersCheckbox.checked;
+                    bumpChart.data.datasets.forEach((dataset, index) => {
+                        bumpChart.getDatasetMeta(index).hidden = !isChecked;
+                    });
+                    bumpChart.update();
                 });
 
                 // Display game results
