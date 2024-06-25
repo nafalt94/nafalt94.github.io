@@ -147,9 +147,27 @@
                     points: latestCumulativePoints[index]
                 })).sort((a, b) => b.points - a.points);
 
+                // Calculate ranks and payouts
+                const prizePool = 3600;
+                const distributions = [0.55, 0.20, 0.12, 0.08, 0.05];
+                let currentRank = 1;
+                sortedPlayers.forEach((player, index) => {
+                    if (index > 0 && sortedPlayers[index].points !== sortedPlayers[index - 1].points) {
+                        currentRank = index + 1;
+                    }
+                    player.rank = currentRank;
+                    if (player.rank - 1 < distributions.length) {
+                        player.payout = prizePool * distributions[player.rank - 1];
+                        player.percentage = (distributions[player.rank - 1] * 100).toFixed(2) + '%';
+                    } else {
+                        player.payout = 0;
+                        player.percentage = '';
+                    }
+                });
+
                 sortedPlayers.forEach((player, index) => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${index + 1}</td><td>${player.name}</td><td>${player.points}</td><td></td>`;
+                    tr.innerHTML = `<td>${player.rank}</td><td>${player.name}</td><td>${player.points}</td><td>${player.payout.toFixed(2)} kr (${player.percentage})</td>`;
                     leaderboardBody.appendChild(tr);
                 });
 
@@ -198,32 +216,15 @@
                         plugins: {
                             legend: {
                                 display: true,
-                                onClick: (e, legendItem, legend) => {
-                                    const index = legendItem.datasetIndex;
-                                    const chart = legend.chart;
-                                    const meta = chart.getDatasetMeta(index);
-
-                                    // Toggle visibility of the clicked dataset
-                                    meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
-
-                                    // Update the chart
-                                    chart.update();
-                                }
+                                position: 'right'
                             },
-                            tooltip: {
-                                callbacks: {
-                                    label: (context) => `${context.dataset.label}: ${context.raw}`
-                                }
+                            title: {
+                                display: true,
+                                text: 'Top 10 Ackumulerat'
                             }
                         },
-                        elements: {
-                            line: {
-                                tension: 0.3
-                            },
-                            point: {
-                                radius: 3
-                            }
-                        }
+                        responsive: true,
+                        maintainAspectRatio: false
                     }
                 });
 
