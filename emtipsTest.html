@@ -62,7 +62,7 @@
                     </table>
                 </div>
                 <div class="table-wrapper">
-                    <h2>Bump Chart of Cumulative Points Over Time</h2>
+                    <h2>Bump Chart of Top 10 Players' Cumulative Points Over Time</h2>
                     <canvas id="bumpChart"></canvas>
                 </div>
                 <div class="table-wrapper">
@@ -153,14 +153,21 @@
                     leaderboardBody.appendChild(tr);
                 });
 
+                // Filter top 10 players
+                const top10Players = sortedPlayers.slice(0, 10);
+                const top10Indices = top10Players.map(player => playerNames.indexOf(player.name));
+
+                const top10CumulativePoints = top10Indices.map(index => cumulativePoints[index]);
+                const top10PlayerNames = top10Indices.map(index => playerNames[index]);
+
                 // Create Bump Chart
                 const bumpChartCtx = document.getElementById('bumpChart').getContext('2d');
 
-                const chartData = playerNames.map((name, playerIndex) => {
+                const chartData = top10PlayerNames.map((name, playerIndex) => {
                     return {
                         label: name,
-                        data: cumulativePoints[playerIndex],
-                        borderColor: `hsl(${playerIndex * (360 / playerNames.length)}, 80%, 50%)`, // Adjust saturation for better visibility
+                        data: top10CumulativePoints[playerIndex],
+                        borderColor: `hsl(${playerIndex * (360 / top10PlayerNames.length)}, 80%, 50%)`, // Adjust saturation for better visibility
                         backgroundColor: 'transparent',
                         borderWidth: 2
                     };
