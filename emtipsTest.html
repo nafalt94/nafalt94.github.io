@@ -35,6 +35,20 @@
                     <canvas id="bumpChart"></canvas>
                 </div>
                 <div class="table-wrapper">
+                    <h2>Last Reported Game</h2>
+                    <table id="last-game-table">
+                        <thead>
+                            <tr>
+                                <th>Game</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="last-game-body">
+                            <!-- Last game result will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-wrapper">
                     <h2>Leaderboard</h2>
                     <p>Total Prize Pot: 3600 kr</p>
                     <table id="leaderboard-table">
@@ -48,20 +62,6 @@
                         </thead>
                         <tbody id="leaderboard-body">
                             <!-- Player data will be inserted here -->
-                        </tbody>
-                    </table>
-                </div>
-                <div class="table-wrapper">
-                    <h2>Last Reported Game</h2>
-                    <table id="last-game-table">
-                        <thead>
-                            <tr>
-                                <th>Game</th>
-                                <th>Result</th>
-                            </tr>
-                        </thead>
-                        <tbody id="last-game-body">
-                            <!-- Last game result will be inserted here -->
                         </tbody>
                     </table>
                 </div>
@@ -147,9 +147,27 @@
                     points: latestCumulativePoints[index]
                 })).sort((a, b) => b.points - a.points);
 
+                // Calculate ranks and payouts
+                const prizePool = 3600;
+                const distributions = [0.55, 0.20, 0.12, 0.08, 0.05];
+                let currentRank = 1;
+                sortedPlayers.forEach((player, index) => {
+                    if (index > 0 && sortedPlayers[index].points !== sortedPlayers[index - 1].points) {
+                        currentRank = index + 1;
+                    }
+                    player.rank = currentRank;
+                    if (player.rank - 1 < distributions.length) {
+                        player.payout = prizePool * distributions[player.rank - 1];
+                        player.percentage = (distributions[player.rank - 1] * 100).toFixed(2) + '%';
+                    } else {
+                        player.payout = 0;
+                        player.percentage = '';
+                    }
+                });
+
                 sortedPlayers.forEach((player, index) => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${index + 1}</td><td>${player.name}</td><td>${player.points}</td><td></td>`;
+                    tr.innerHTML = `<td>${player.rank}</td><td>${player.name}</td><td>${player.points}</td><td>${player.payout.toFixed(2)} kr (${player.percentage})</td>`;
                     leaderboardBody.appendChild(tr);
                 });
 
@@ -191,80 +209,44 @@
                             x: {
                                 title: {
                                     display: true,
-                                    text: 'Game'
+                                    text: 'Time'
                                 }
                             }
                         },
                         plugins: {
                             legend: {
-                                display: true,
-                                onClick: (e, legendItem, legend) => {
-                                    const index = legendItem.datasetIndex;
-                                    const chart = legend.chart;
-                                    const meta = chart.getDatasetMeta(index);
-
-                                    // Toggle visibility of the clicked dataset
-                                    meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
-
-                                    // Update the chart
-                                    chart.update();
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: (context) => `${context.dataset.label}: ${context.raw}`
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 20,
+                                    padding: 15
                                 }
                             }
                         },
-                        elements: {
-                            line: {
-                                tension: 0.3
-                            },
-                            point: {
-                                radius: 3
-                            }
-                        }
+                        responsive: true,
+                        maintainAspectRatio: false
                     }
                 });
 
-                // Display game results
-                const gameResultsSheet = workbook.Sheets["Resultat"];
-                const gameResultsBody = document.getElementById("game-results-body");
-                const lastGameBody = document.getElementById("last-game-body");
-                let lastGameResult = null;
-                for (let i = 6; i <= 65; i++) {
-                    const homeTeamCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 4 })];
-                    const awayTeamCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 6 })];
-                    const goalsHomeCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 8 })];
-                    const goalsAwayCell = gameResultsSheet[XLSX.utils.encode_cell({ r: i, c: 10 })];
+                // Populate Last Reported Game
+                const lastGameTableBody = document.getElementById("last-game-body");
+                const lastGameRow = rows[rows.length - 1];
+                const lastGame = `${lastGameRow[0]} ${lastGameRow[1]}`;
+                const lastGameResult = lastGameRow.slice(2, 4).join(' - '); // Assuming result is in the 3rd and 4th columns
+                const lastGameTr = document.createElement('tr');
+                lastGameTr.innerHTML = `<td>${lastGame}</td><td>${lastGameResult}</td>`;
+                lastGameTableBody.appendChild(lastGameTr);
 
-                    if (homeTeamCell && awayTeamCell && goalsHomeCell && goalsAwayCell) {
-                        const homeTeam = homeTeamCell.v;
-                        const awayTeam = awayTeamCell.v;
-                        const goalsHome = goalsHomeCell.v;
-                        const goalsAway = goalsAwayCell.v;
-
-                        let resultSign;
-                        if (goalsHome > goalsAway) {
-                            resultSign = "1";
-                        } else if (goalsHome < goalsAway) {
-                            resultSign = "2";
-                        } else {
-                            resultSign = "X";
-                        }
-
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `<td>${homeTeam} vs ${awayTeam}</td><td>${resultSign} (${goalsHome} - ${goalsAway})</td>`;
-                        gameResultsBody.appendChild(tr);
-                        lastGameResult = tr;
-                    }
-                }
-                if (lastGameResult) {
-                    lastGameBody.appendChild(lastGameResult.cloneNode(true));
-                }
-
+                // Populate Game Results
+                const gameResultsTableBody = document.getElementById("game-results-body");
+                rows.slice(1).forEach(row => {
+                    const game = `${row[0]} ${row[1]}`;
+                    const result = row.slice(2, 4).join(' - '); // Assuming result is in the 3rd and 4th columns
+                    const gameTr = document.createElement('tr');
+                    gameTr.innerHTML = `<td>${game}</td><td>${result}</td>`;
+                    gameResultsTableBody.appendChild(gameTr);
+                });
             })
-            .catch(error => console.error('Error fetching or processing Excel file:', error));
+            .catch(error => console.error(error));
     });
     </script>
 </body>
